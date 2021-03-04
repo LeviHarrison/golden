@@ -11,8 +11,16 @@ gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 corners = cv2.goodFeaturesToTrack(gray, 25, 0.01, 10)
 corners = np.int0(corners)
 
-found = []
+def slope_diff(one, two, three):
+  slope1 = (two[1] - one[1]) / (two[0] - one[0])
+  slope2 = (three[1] - two[1]) / (three[0] - two[0])
 
+  inc1 = math.radians(math.atan(slope1))
+  inc2 = math.radians(math.atan(slope2))
+
+  return 180 - abs(inc2 - inc1)
+
+found = []
 
 def check_found(new, found):
     for i in found:
@@ -29,8 +37,12 @@ for i in range(len(corners)):
         for k in range(len(corners)):
             if k == j or k == i:
                 continue
-            if round(math.dist(corners[i][0], corners[j][0]) / math.dist(corners[j][0], corners[k][0]), 3) == 1.618:
+            diff = slope_diff(corners[i][0], corners[j][0], corners[k][0])
+            print(diff)
+            ratio = round(math.dist(corners[i][0], corners[j][0]) / math.dist(corners[j][0], corners[k][0]), 2)
+            if ratio >= 1.60 and ratio <= 1.62 and diff >= 0 and diff <= .2:
                 if not check_found([i, j, k], found):
+                    print(diff)
                     img = cv2.line(img, tuple(corners[i][0]), tuple(
                         corners[j][0]), (0, 0, 225), 1)
                     img = cv2.line(img, tuple(corners[j][0]), tuple(
