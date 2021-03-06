@@ -43,12 +43,11 @@ cur.execute(table)
 conn.commit()
 
 while True:
-    data = requests.get("http://localhost:8080/job").json()
+    data = requests.get("http://manager:8080/job").json()
 
     try:
         img = io.imread(data["url"])
     except:
-        print("could not fetch")
         continue
 
     yes = False
@@ -57,15 +56,15 @@ while True:
             yes = True
             break
     if yes:
-        print("banned")
         continue
 
-    y, x, _ = img.shape
+    try:
+        y, x, _ = img.shape
+    except:
+        continue
+
     if x < 600 or y < 600:
-        print("too small")
         continue
-
-    print("yes")
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
