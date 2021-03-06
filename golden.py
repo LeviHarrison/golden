@@ -21,7 +21,10 @@ def slope_diff(one, two, three):
     return abs(slope2 - slope1)
 
 
+banned = ["opium", "marijuana", "pot", "cocain", "poppy", "poppies"]
+
 conn = sqlite3.connect("db.sqlite3")
+cur = conn.cursor()
 
 table = """
 CREATE TABLE IF NOT EXISTS golden (
@@ -36,7 +39,8 @@ CREATE TABLE IF NOT EXISTS golden (
     y3 INTEGER NOT NULL
 );
 """
-conn.execute(table)
+cur.execute(table)
+conn.commit()
 
 while True:
     data = requests.get("http://localhost:8080/job").json()
@@ -44,7 +48,24 @@ while True:
     try:
         img = io.imread(data["url"])
     except:
+        print("could not fetch")
         continue
+
+    yes = False
+    for term in banned:
+        if term in data["url"] or term in data["catagory"]:
+            yes = True
+            break
+    if yes:
+        print("banned")
+        continue
+
+    y, x, _ = img.shape
+    if x < 600 or y < 600:
+        print("too small")
+        continue
+
+    print("yes")
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -72,10 +93,13 @@ while True:
                         found.append([i, j, k])
 
     for f in found:
+        print("found")
         insert = """
         INSERT INTO
             golden (url, catagory, x1, y1, x2, y2, x3, y3)
         VALUES
-            ('{}', {}, {}, {}, {}, {}, {}, {}');
+            ('{}', '{}', {}, {}, {}, {}, {}, {});
         """.format(data["url"], data["catagory"], str(corners[f[0]][0][0]), str(corners[f[0]][0][1]), str(corners[f[1]][0][0]), str(corners[f[1]][0][1]), str(corners[f[2]][0][0]), str(corners[f[2]][0][1]))
-        print(insert)
+        cur = conn.cursor()
+        cur.execute(insert)
+        conn.commit()
