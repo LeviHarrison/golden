@@ -1,0 +1,20 @@
+version: "3.2"
+
+services:
+  golden:
+    build: .
+    deploy:
+      replicas: 35
+    volumes:
+      - ./db.sqlite3:/db.sqlite3
+    environment:
+      PYTHONUNBUFFERED: 1
+    restart: unless-stopped
+
+  manager:
+    build:
+      context: .
+      dockerfile: manager.Dockerfile
+    volumes:
+      - ./index.txt:/go/src/manager/index.txt
+      - ./dataset.txt:/go/src/manager/dataset.txt
