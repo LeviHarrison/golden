@@ -2,24 +2,8 @@ import cv2
 from skimage import io
 import math
 import numpy as np
-
-img = io.imread(
-    "https://fessenden.myschoolapp.com/ftpimages/7/user/large_user_5031860_61.jpg?resize=200,200")
-
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-corners = cv2.goodFeaturesToTrack(gray, 25, 0.01, 10)
-corners = np.int0(corners)
-
-
-def slope_diff(one, two, three):
-    slope1 = ((200 - two[1]) - (200 - one[1])) / (two[0] - one[0])
-    slope2 = ((200 - three[1]) - (200 - two[1])) / (three[0] - two[0])
-
-    return abs(slope2 - slope1)
-
-
-found = []
+import requests
+import sqlite3
 
 
 def check_found(new, found):
@@ -30,28 +14,68 @@ def check_found(new, found):
     return False
 
 
-for i in range(len(corners)):
-    for j in range(len(corners)):
-        if j == i:
-            continue
-        for k in range(len(corners)):
-            if k == j or k == i:
-                continue
-            if not check_found([i, j, k], found):
-                ratio = round(math.dist(
-                    corners[i][0], corners[j][0]) / math.dist(corners[j][0], corners[k][0]), 2)
-                diff = slope_diff(corners[i][0], corners[j][0], corners[k][0])
-                direction = math.dist(
-                    corners[i][0], corners[k][0]) - math.dist(corners[i][0], corners[j][0])
-<<<<<<< HEAD
-                if ratio >= 1.59 and ratio <= 1.63 and diff >= 0 and diff <= .4 and direction > 0:
-=======
-                if ratio >= 1.60 and ratio <= 1.62 and diff >= 0 and diff <= .4 and direction > 0:
->>>>>>> parent of 3ce6f16... Changed un-cving of y axis
-                    img = cv2.line(img, tuple(corners[i][0]), tuple(
-                        corners[j][0]), (0, 0, 225), 1)
-                    img = cv2.line(img, tuple(corners[j][0]), tuple(
-                        corners[k][0]), (255, 0, 0), 1)
-                    found.append([i, j, k])
+def slope_diff(one, two, three):
+    slope1 = ((200 - two[1]) - (200 - one[1])) / (two[0] - one[0])
+    slope2 = ((200 - three[1]) - (200 - two[1])) / (three[0] - two[0])
 
-cv2.imwrite("test.png", img)
+    return abs(slope2 - slope1)
+
+
+conn = sqlite3.connect("db.sqlite3")
+
+table = """
+CREATE TABLE IF NOT EXISTS golden (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    catagory TEXT NOT NULL,
+    x1 INTEGER NOT NULL,
+    y1 INTEGER NOT NULL,
+    x2 INTEGER NOT NULL,
+    y2 INTEGER NOT NULL,
+    x3 INTEGER NOT NULL,
+    y3 INTEGER NOT NULL
+);
+"""
+conn.execute(table)
+
+while True:
+    data = requests.get("http://localhost:8080/job").json()
+
+    try:
+        img = io.imread(data["url"])
+    except:
+        continue
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    corners = cv2.goodFeaturesToTrack(gray, 25, 0.01, 10)
+    corners = np.int0(corners)
+
+    found = []
+
+    for i in range(len(corners)):
+        for j in range(len(corners)):
+            if j == i:
+                continue
+            for k in range(len(corners)):
+                if k == j or k == i:
+                    continue
+                if not check_found([i, j, k], found):
+                    ratio = round(math.dist(
+                        corners[i][0], corners[j][0]) / math.dist(corners[j][0], corners[k][0]), 2)
+                    diff = slope_diff(
+                        corners[i][0], corners[j][0], corners[k][0])
+                    direction = math.dist(
+                        corners[i][0], corners[k][0]) - math.dist(corners[i][0], corners[j][0])
+
+                    if ratio >= 1.60 and ratio <= 1.62 and diff >= 0 and diff <= .4 and direction > 0:
+                        found.append([i, j, k])
+
+    for f in found:
+        insert = """
+        INSERT INTO
+            golden (url, catagory, x1, y1, x2, y2, x3, y3)
+        VALUES
+            ('{}', {}, {}, {}, {}, {}, {}, {}');
+        """.format(data["url"], data["catagory"], str(corners[f[0]][0][0]), str(corners[f[0]][0][1]), str(corners[f[1]][0][0]), str(corners[f[1]][0][1]), str(corners[f[2]][0][0]), str(corners[f[2]][0][1]))
+        print(insert)
