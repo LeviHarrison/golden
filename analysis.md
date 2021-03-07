@@ -8,7 +8,7 @@ SELECT COUNT(*) FROM golden
 
 `1865`
 
-I ended up with 1865 total occurences of the golden ratio.
+I ended up with 1865 total occurrences of the golden ratio.
 
 ---
 
@@ -40,7 +40,7 @@ SELECT COUNT(DISTINCT url) FROM golden
 
 `532`
 
-More specifically, these occurences came from 532 individual images.
+More specifically, these occurrences came from 532 individual images.
 
 ---
 
@@ -62,7 +62,7 @@ engelmannia has 9 occurrences of the golden ratio with 2 images, bringing it to 
 ...
 ```
 
-One of the big problems with my program is that it goes insane when there is text in the image, and flags about 7 golden ratio occurences on just that portion. A lot of the top finishers in the above list were there because the photographer had left a watermark. Another problem was images that were completely unrelated and just had a lot of points to draw the golden ratio from. For some reason,  the `dent` and `flint` catagories were just corn, and the kettles triggered a lot of detections.
+One of the big problems with my program is that it goes insane when there is text in the image, and flags about 7 golden ratio occurrences on just that portion. A lot of the top finishers in the above list were there because the photographer had left a watermark. Another problem was images that were completely unrelated and just had a lot of points to draw the golden ratio from. For some reason,  the `dent` and `flint` catagories were just corn, and the kettles triggered a lot of detections.
 
 Yet, I did find a true winner. The Englemannia, a type of daisy, had a bunch of (somewhat) valid detections on not just one but two images.
 
