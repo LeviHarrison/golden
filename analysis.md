@@ -70,7 +70,8 @@ Yet, I did find a true winner. The Englemannia, a type of daisy, had a bunch of 
 
 ![engelmannia-592](https://user-images.githubusercontent.com/54278938/110250969-4661f900-7f4c-11eb-89e0-4c12e9eee0e2.png)
 
-![engelmannia-593](https://user-images.githubusercontent.com/54278938/110250914-f71bc880-7f4b-11eb-860c-bf5ec8a16fdf.png)
+![engelmannia-593](https://user-images.githubusercontent.com/54278938/110250914-f71bc880-7f4b-11eb-860c-bf5ec8a16fdf.png)]
+
 (This one is questionable)
 
 ---
